@@ -1,0 +1,11 @@
+.dashboard {
+  padding: 2rem;
+  text-align: center;
+}
+.file-list ul {
+  list-style-type: none;
+  padding: 0;
+}
+.file-list li {
+  margin: 1rem 0;
+}

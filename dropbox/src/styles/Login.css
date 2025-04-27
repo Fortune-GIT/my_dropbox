@@ -1,0 +1,8 @@
+.login {
+  padding: 2rem;
+  text-align: center;
+}
+.login input {
+  margin: 0.5rem;
+  padding: 0.5rem;
+}
