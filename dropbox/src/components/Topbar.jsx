@@ -5,13 +5,13 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { useFolder } from "../contexts/FolderContext";
 import CreateFolderModal from "./CreateFolderModal";
-import { AiOutlineUpload, AiFillFolderAdd, AiOutlineLogout } from "react-icons/ai"; // Added logout icon
+import { AiOutlineUpload, AiFillFolderAdd, AiOutlineLogout, AiOutlineArrowLeft } from "react-icons/ai"; // Added logout and back icons
 import { getAuth, signOut } from "firebase/auth"; // Firebase auth
 
 export default function Topbar() {
   const [files, setFiles] = useState([]);
   const [showCreateFolder, setShowCreateFolder] = useState(false);
-  const { currentFolderId, currentView, goHome, openParentFolder } = useFolder();
+  const { currentFolderId, currentView, openParentFolder } = useFolder();
   const auth = getAuth();
 
   const handleUpload = async () => {
@@ -50,10 +50,19 @@ export default function Topbar() {
   };
 
   return (
-    <div className="topbar">
-      <div className="toolbar">
-        {/* Upload buttons */}
-        <label className="file-upload-button">
+    <div className="topbar" style={{ display: "flex", alignItems: "center", padding: "1rem", backgroundColor: "#ffffff", borderBottom: "1px solid #e0e0e0" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "10px", flexGrow: 1 }}>
+        
+        {/* BACK Button */}
+        {currentView === "folder" && currentFolderId && (
+          <button onClick={openParentFolder} className="btn" style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+            <AiOutlineArrowLeft size={18} />
+            Back
+          </button>
+        )}
+
+        {/* Choose Files */}
+        <label className="file-upload-button" style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", padding: "0.5rem 1rem", background: "#f0f0f0", borderRadius: "6px" }}>
           📁 Choose Files
           <input
             type="file"
@@ -63,20 +72,27 @@ export default function Topbar() {
           />
         </label>
 
-        <button onClick={handleUpload} className="btn blue">
-          <AiOutlineUpload /> Upload
+        {/* Upload Button */}
+        <button onClick={handleUpload} className="btn blue" style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <AiOutlineUpload size={18} />
+          Upload
         </button>
 
-        <button onClick={() => setShowCreateFolder(true)} className="btn blue">
-          <AiFillFolderAdd /> Create Folder
+        {/* Create Folder */}
+        <button onClick={() => setShowCreateFolder(true)} className="btn blue" style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <AiFillFolderAdd size={18} />
+          Create Folder
         </button>
 
-        {/* Sign Out button */}
-        <button onClick={handleSignOut} className="btn red" style={{ marginLeft: "auto" }}>
-          <AiOutlineLogout /> Sign Out
-        </button>
       </div>
 
+      {/* Sign Out Button */}
+      <button onClick={handleSignOut} className="btn red" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+        <AiOutlineLogout size={18} />
+        Sign Out
+      </button>
+
+      {/* Create Folder Modal */}
       {showCreateFolder && <CreateFolderModal onClose={() => setShowCreateFolder(false)} />}
     </div>
   );

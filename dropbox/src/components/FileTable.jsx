@@ -121,6 +121,22 @@ export default function FileTable() {
     }
   };
 
+  const handleDownload = (e, file) => {
+    e.stopPropagation();
+    try {
+      const link = document.createElement("a");
+      link.href = file.url;
+      link.setAttribute("download", file.versionedName || "downloaded-file");
+      link.target = "_blank"; // important for Firebase Storage
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Error downloading file:", error);
+      alert("Failed to download file.");
+    }
+  };
+
   const folders = files.filter(file => file.isFolder && file.originalName.toLowerCase().includes(searchTerm.toLowerCase()));
   const regularFiles = files.filter(file => !file.isFolder && file.versionedName?.toLowerCase().includes(searchTerm.toLowerCase()));
 
@@ -145,7 +161,7 @@ export default function FileTable() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
-              padding: "0.5rem 0.5rem 0.5rem 2.5rem", 
+              padding: "0.5rem 0.5rem 0.5rem 2.5rem",
               width: "100%",
               borderRadius: "5px",
               border: "1px solid #ccc"
@@ -229,7 +245,6 @@ export default function FileTable() {
 
                   {/* Share Button */}
                   <button
-                    className="file-share-button"
                     onClick={(e) => {
                       e.stopPropagation();
                       navigator.clipboard.writeText(file.url)
@@ -238,10 +253,10 @@ export default function FileTable() {
                     }}
                     title="Copy Link"
                     style={{
+                      marginLeft: "8px",
                       background: "none",
                       border: "none",
                       cursor: "pointer",
-                      marginLeft: "8px",
                       fontSize: "18px",
                       color: "#555"
                     }}
@@ -250,19 +265,20 @@ export default function FileTable() {
                   </button>
 
                   {/* Download Button */}
-                  <a
-                    href={file.url}
-                    download
+                  <button
+                    onClick={(e) => handleDownload(e, file)}
                     title="Download File"
                     style={{
                       marginLeft: "8px",
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
                       fontSize: "18px",
                       color: "#555"
                     }}
-                    onClick={(e) => e.stopPropagation()}
                   >
                     <AiOutlineDownload />
-                  </a>
+                  </button>
                 </td>
                 <td>{file.createdAt?.toDate().toLocaleString()}</td>
                 <td>{(file.size / (1024 * 1024)).toFixed(2)}</td>

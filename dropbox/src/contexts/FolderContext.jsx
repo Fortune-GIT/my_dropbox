@@ -1,4 +1,3 @@
-// src/contexts/FolderContext.jsx
 import React, { createContext, useContext, useState } from "react";
 
 const FolderContext = createContext();
@@ -8,56 +7,76 @@ export function useFolder() {
 }
 
 export function FolderProvider({ children }) {
-  const [path, setPath] = useState([{ id: null, name: "Home" }]);
-  const [currentView, setCurrentView] = useState("home"); // new line
+  const [currentFolderId, setCurrentFolderId] = useState(null); // Which folder you're inside
+  const [currentFolderName, setCurrentFolderName] = useState("Home"); // Name for display (optional)
+  const [folderHistory, setFolderHistory] = useState([]); // For going back
+  const [currentView, setCurrentView] = useState("home"); // home, folder, pictures, shared, deleted
 
-  const openFolder = (folderId, folderName) => {
-    setPath((prev) => [...prev, { id: folderId, name: folderName }]);
-    setCurrentView("folder"); // switch to folder view when navigating
+  // Go Home
+  const goHome = () => {
+    setCurrentFolderId(null);
+    setCurrentFolderName("Home");
+    setCurrentView("home");
+    setFolderHistory([]); // Reset history
   };
 
-  const goBack = () => {
-    if (path.length > 1) {
-      setPath((prev) => prev.slice(0, prev.length - 1));
+  // Open a specific folder
+  const openFolder = (folderId, folderName = "Folder") => {
+    if (currentFolderId) {
+      setFolderHistory(prev => [...prev, { id: currentFolderId, name: currentFolderName }]);
+    }
+    setCurrentFolderId(folderId);
+    setCurrentFolderName(folderName);
+    setCurrentView("folder");
+  };
+
+  // Go back to previous folder
+  const openParentFolder = () => {
+    if (folderHistory.length > 0) {
+      const lastFolder = folderHistory[folderHistory.length - 1];
+      setCurrentFolderId(lastFolder.id);
+      setCurrentFolderName(lastFolder.name);
+      setFolderHistory(prev => prev.slice(0, -1));
+    } else {
+      // If no history, go home
+      goHome();
     }
   };
 
-  const goHome = () => {
-    setPath([{ id: null, name: "Home" }]);
-    setCurrentView("home");
-  };
-
+  // Open special views
   const openPictures = () => {
-    setPath([{ id: null, name: "Pictures" }]);
+    setCurrentFolderId(null);
+    setCurrentFolderName("Pictures");
     setCurrentView("pictures");
+    setFolderHistory([]); // Clear history when switching mode
   };
 
   const openSharedFiles = () => {
-    setPath([{ id: null, name: "Shared Files" }]);
+    setCurrentFolderId(null);
+    setCurrentFolderName("Shared Files");
     setCurrentView("shared");
+    setFolderHistory([]);
   };
 
   const openDeletedFiles = () => {
-    setPath([{ id: null, name: "Deleted Files" }]);
+    setCurrentFolderId(null);
+    setCurrentFolderName("Deleted Files");
     setCurrentView("deleted");
+    setFolderHistory([]);
   };
-
-  const currentFolderId = path[path.length - 1]?.id;
-  const currentFolderName = path[path.length - 1]?.name;
 
   return (
     <FolderContext.Provider
       value={{
-        path,
         currentFolderId,
         currentFolderName,
-        openFolder,
-        goBack,
+        currentView,
         goHome,
+        openFolder,
+        openParentFolder,
         openPictures,
         openSharedFiles,
         openDeletedFiles,
-        currentView,
       }}
     >
       {children}
