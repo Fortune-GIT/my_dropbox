@@ -1,30 +1,30 @@
-// src/pages/Login.jsx
+// src/pages/SignUp.jsx
 import React, { useState } from "react";
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 
-export default function Login() {
+export default function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
   const auth = getAuth();
 
-  const handleLogin = async (e) => {
+  const handleSignUp = async (e) => {
     e.preventDefault();
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      alert("✅ Login successful!");
-      navigate("/"); // Redirect to home after login
+      await createUserWithEmailAndPassword(auth, email, password);
+      alert("✅ Account created successfully!");
+      navigate("/"); // Redirect to home page after signup
     } catch (error) {
       console.error(error);
-      alert("❌ " + error.message);
+      alert(error.message);
     }
   };
 
   return (
     <div className="auth-container">
-      <h2>Login</h2>
-      <form onSubmit={handleLogin}>
+      <h2>Sign Up</h2>
+      <form onSubmit={handleSignUp}>
         <input 
           type="email" 
           placeholder="Email" 
@@ -39,7 +39,7 @@ export default function Login() {
           onChange={(e) => setPassword(e.target.value)}
           required 
         />
-        <button type="submit" className="btn blue">Login</button>
+        <button type="submit" className="btn blue">Create Account</button>
       </form>
     </div>
   );
