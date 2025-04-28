@@ -8,8 +8,8 @@ import Topbar from "./components/Topbar";
 import FileTable from "./components/FileTable";
 import StorageUsage from "./components/StorageUsage";
 
-import SignUp from "./components/SignUp"; 
-import Login from "./components/Login";    
+import SignUp from "./components/SignUp";
+import Login from "./components/Login";
 
 import "./styles/Sidebar.css";
 import "./styles/Topbar.css";
@@ -18,7 +18,7 @@ import "./styles/StorageUsage.css";
 import "./styles/CreateFolderModal.css";
 import "./styles/ContextMenu.css";
 import "./styles/PreviewModal.css";
-import "./styles/Auth.css"
+import "./styles/Auth.css";
 
 export default function App() {
   return (
@@ -30,9 +30,9 @@ export default function App() {
         {/* Login Page */}
         <Route path="/login" element={<Login />} />
 
-        {/* Main Dropbox App */}
-        <Route 
-          path="/*" 
+        {/* Main App (protected area) */}
+        <Route
+          path="/*"
           element={
             <FolderProvider>
               <div className="app">

@@ -1,4 +1,3 @@
-// src/components/Sidebar.jsx
 import React from "react";
 import { useFolder } from "../contexts/FolderContext";
 import { AiFillHome, AiFillPicture, AiOutlineShareAlt, AiFillDelete } from "react-icons/ai";
