@@ -6,6 +6,13 @@ import Topbar from "./components/Topbar";
 import FileTable from "./components/FileTable";
 import StorageUsage from "./components/StorageUsage";
 
+import "./styles/Sidebar.css";
+import "./styles/Topbar.css";
+import "./styles/FileTable.css";
+import "./styles/StorageUsage.css";
+import "./styles/CreateFolderModal.css";
+import "./styles/ContextMenu.css";
+
 export default function App() {
   return (
     <FolderProvider>

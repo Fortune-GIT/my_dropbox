@@ -40,3 +40,67 @@
 .read-the-docs {
   color: #888;
 }
+
+.app {
+  display: flex;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.sidebar {
+  width: 220px;
+  background-color: #f7f9fb;
+  padding: 1rem;
+  border-right: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
+}
+
+.main {
+  flex: 1;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+}
+
+.topbar {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid #ccc;
+  background-color: #f7f9fb;
+  align-items: center;
+}
+
+.file-table {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.storage-usage {
+  padding: 1rem;
+  background: #f7f9fb;
+  border-top: 1px solid #ccc;
+  font-weight: bold;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  background: #0070f3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.file-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.file-table th, .file-table td {
+  border: 1px solid #ddd;
+  padding: 0.5rem;
+  text-align: left;
+}
