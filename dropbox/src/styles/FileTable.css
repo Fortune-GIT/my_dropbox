@@ -75,3 +75,34 @@
 .dragging {
   opacity: 0.4;
 }
+
+
+.file-share-button {
+  background: none;
+  border: none;
+  color: #0070f3;
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  margin-left: 8px;
+}
+
+.file-share-button:hover {
+  color: #0051a3;
+}
+
+.file-share-button {
+  background: none;
+  border: none;
+  color: #0070f3;
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+  margin-left: 8px;
+}
+
+.file-share-button:hover {
+  color: #0051a3;
+}

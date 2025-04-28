@@ -69,7 +69,7 @@ export default function FileTable() {
 
   const handleBulkDelete = async () => {
     if (selectedFiles.length === 0) {
-      alert("Select at least one file/folder to delete!");
+      alert("Please select at least one file/folder to delete!");
       return;
     }
     const confirmDelete = window.confirm("Are you sure you want to delete selected items?");
@@ -103,7 +103,7 @@ export default function FileTable() {
           style={{ padding: "0.5rem", flexGrow: 1, borderRadius: "5px", border: "1px solid #ccc" }}
         />
         <button className="btn" onClick={handleBulkDelete} style={{ background: "red" }}>
-          Delete
+          🗑️ Bulk Delete
         </button>
       </div>
 
@@ -159,6 +159,18 @@ export default function FileTable() {
                 <a href={file.url} target="_blank" rel="noreferrer">
                   {file.versionedName}
                 </a>
+                {" "}
+                <button
+                  className="file-share-button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigator.clipboard.writeText(file.url)
+                      .then(() => alert("🔗 File link copied!"))
+                      .catch(() => alert("Failed to copy link."));
+                  }}
+                >
+                  🔗 Share
+                </button>
               </td>
               <td>{file.createdAt?.toDate().toLocaleString()}</td>
               <td>{(file.size / (1024 * 1024)).toFixed(2)}</td>

@@ -17,14 +17,16 @@ export default function Topbar() {
         </button>
       )}
 
+      {/* Upload Files */}
       <FileUploader />
+
+      {/* Create Folder */}
       <button className="btn" onClick={() => setShowModal(true)}>
         ➕ Create Folder
       </button>
-      <button className="btn">
-        🔗 Share
-      </button>
 
+      {/* The Share Button REMOVED from here */}
+      
       {showModal && <CreateFolderModal onClose={() => setShowModal(false)} />}
     </div>
   );

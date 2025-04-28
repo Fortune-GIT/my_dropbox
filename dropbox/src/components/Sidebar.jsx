@@ -3,30 +3,24 @@ import React from "react";
 import { useFolder } from "../contexts/FolderContext";
 
 export default function Sidebar() {
-  const { path, goHome, openFolder } = useFolder();
+  const { path, goHome } = useFolder();
+  const currentFolder = path[path.length - 1];
 
   return (
     <div className="sidebar">
       <h2 onClick={goHome} style={{ cursor: "pointer" }}>📁 MyDropbox</h2>
 
-      {/* Directory Path (Breadcrumbs) */}
+      {/* Display the current folder cleanly */}
       <div style={{ marginTop: "1rem", fontSize: "14px" }}>
-        {path.map((folder, index) => (
-          <div key={folder.id || "home"} style={{ paddingLeft: `${index * 10}px`, cursor: "pointer" }}>
-            {index !== 0 && "↳ "}
-            <span onClick={() => {
-              if (index === 0) {
-                goHome();
-              } else {
-                openFolder(folder.id, folder.name);
-              }
-            }}>
-              {folder.name}
-            </span>
-          </div>
-        ))}
+        <div
+          key={`${currentFolder.name}-${path.length - 1}`} // use name + index
+          style={{ cursor: "pointer", fontWeight: "bold" }}
+        >
+          {currentFolder?.name || "Home"}
+        </div>
       </div>
 
+      {/* Static Links */}
       <ul style={{ marginTop: "2rem" }}>
         <li>🏠 Home</li>
         <li>🖼️ Photos</li>
