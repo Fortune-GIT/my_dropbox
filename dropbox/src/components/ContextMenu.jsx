@@ -9,14 +9,28 @@ export default function ContextMenu({ file, position }) {
 
   const handleRename = async () => {
     const newLabel = prompt("Enter new name:", file.originalName || file.versionedName);
+  
     if (newLabel) {
+      const extMatch = file.versionedName.match(/\.\w+$/);
+      const extension = extMatch ? extMatch[0] : "";
+  
+      const versionedNameParts = file.versionedName.split("-");
+      const timestamp = versionedNameParts.length > 1 ? versionedNameParts.slice(1).join("-").replace(extension, "") : "";
+  
+      const newVersionedName = `${newLabel.replace(/\s+/g, "_")}-${timestamp}${extension}`;
+  
       const fileRef = doc(db, "files", file.id);
+  
       await updateDoc(fileRef, {
         originalName: newLabel,
+        versionedName: newVersionedName,
       });
+  
+      alert("✅ File renamed successfully!");
       window.location.reload();
     }
   };
+  
 
   const handleDelete = async () => {
     if (window.confirm("Are you sure you want to permanently delete this file?")) {
