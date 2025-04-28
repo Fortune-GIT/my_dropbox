@@ -21,6 +21,7 @@
   list-style: none;
   padding: 0;
   margin: 0;
+
 }
 
 .sidebar li {
@@ -30,6 +31,8 @@
   cursor: pointer;
   border-radius: 5px;
   transition: background 0.2s;
+  margin-bottom: 1.5rem;
+  padding: 0.2rem;
 }
 
 .sidebar li:hover {

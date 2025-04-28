@@ -5,8 +5,6 @@ import Sidebar from "./components/Sidebar";
 import Topbar from "./components/Topbar";
 import FileTable from "./components/FileTable";
 import StorageUsage from "./components/StorageUsage";
-// Temporary Fix Component
-import FixOldFiles from "./components/FixOldFiles";
 
 import "./styles/Sidebar.css";
 import "./styles/Topbar.css";
@@ -14,7 +12,7 @@ import "./styles/FileTable.css";
 import "./styles/StorageUsage.css";
 import "./styles/CreateFolderModal.css";
 import "./styles/ContextMenu.css";
-import "./styles/PreviewModal.css"; // Optional if you have preview
+import "./styles/PreviewModal.css";
 
 export default function App() {
   return (
@@ -22,10 +20,11 @@ export default function App() {
       <div className="app">
         <Sidebar />
         <div className="main">
-          <Topbar />
-          <FileTable />
+          <div className="main-inner">
+            <Topbar />
+            <FileTable />
+          </div>
           <StorageUsage />
-          <FixOldFiles />
         </div>
       </div>
     </FolderProvider>

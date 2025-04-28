@@ -29,3 +29,30 @@
 input[type="file"] {
   font-family: "Inter", "Helvetica Neue", sans-serif;
 }
+
+.btn {
+  background-color: #0061ff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 999px; 
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.btn:hover {
+  background-color: #0051d4;
+}
+
+.btn {
+  margin-right: 8px;
+}
+
+.custom-file-upload {
+  display: inline-block;
+  margin-right: 10px;
+}

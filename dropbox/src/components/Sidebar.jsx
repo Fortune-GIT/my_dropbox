@@ -7,22 +7,66 @@ export default function Sidebar() {
   const { goHome, openPictures, openSharedFiles, openDeletedFiles } = useFolder();
 
   return (
-    <div className="sidebar">
-      <h2 onClick={goHome} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "8px" }}>
-        📁 MyDropbox
+    <div className="sidebar" style={{ padding: "1.5rem 1rem" }}>
+      {/* Title */}
+      <h2 onClick={goHome} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", marginBottom: "2rem" }}>
+       <span>MyDropbox</span>
       </h2>
 
-      <ul style={{ marginTop: "2rem", listStyle: "none", padding: 0 }}>
-        <li style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", marginBottom: "1rem" }} onClick={goHome}>
+      {/* Links */}
+      <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
+        <li 
+          onClick={goHome} 
+          style={{ 
+            cursor: "pointer", 
+            display: "flex", 
+            alignItems: "center", 
+            gap: "8px", 
+            marginBottom: "1.5rem", 
+            fontSize: "16px" 
+          }}
+        >
           <AiFillHome size={20} /> Home
         </li>
-        <li style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", marginBottom: "1rem" }} onClick={openPictures}>
+
+        <li 
+          onClick={openPictures} 
+          style={{ 
+            cursor: "pointer", 
+            display: "flex", 
+            alignItems: "center", 
+            gap: "8px", 
+            marginBottom: "1.5rem", 
+            fontSize: "16px" 
+          }}
+        >
           <AiFillPicture size={20} /> Pictures
         </li>
-        <li style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", marginBottom: "1rem" }} onClick={openSharedFiles}>
+
+        <li 
+          onClick={openSharedFiles} 
+          style={{ 
+            cursor: "pointer", 
+            display: "flex", 
+            alignItems: "center", 
+            gap: "5px", 
+            marginBottom: "1.5rem", 
+            fontSize: "16px" 
+          }}
+        >
           <AiOutlineShareAlt size={20} /> Shared Files
         </li>
-        <li style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "8px" }} onClick={openDeletedFiles}>
+
+        <li 
+          onClick={openDeletedFiles} 
+          style={{ 
+            cursor: "pointer", 
+            display: "flex", 
+            alignItems: "center", 
+            gap: "8px", 
+            fontSize: "16px" 
+          }}
+        >
           <AiFillDelete size={20} /> Deleted Files
         </li>
       </ul>
