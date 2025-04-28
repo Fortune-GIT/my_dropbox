@@ -5,9 +5,10 @@ import { collection, onSnapshot, query, where, orderBy, updateDoc, doc, deleteDo
 import { useFolder } from "../contexts/FolderContext";
 import ContextMenu from "./ContextMenu";
 import PreviewModal from "./PreviewModal";
+import { AiFillFolder, AiFillFile, AiOutlineLink } from "react-icons/ai"; // 👈 ADD THIS
 
 export default function FileTable() {
-  const { currentFolderId, currentView, openFolder } = useFolder(); // 👈 include currentView
+  const { currentFolderId, currentView, openFolder } = useFolder();
   const [files, setFiles] = useState([]);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -61,7 +62,7 @@ export default function FileTable() {
     });
 
     return () => unsubscribe();
-  }, [currentFolderId, currentView]); // 👈 track both
+  }, [currentFolderId, currentView]);
 
   const handleRightClick = (e, file) => {
     e.preventDefault();
@@ -137,7 +138,7 @@ export default function FileTable() {
           style={{ padding: "0.5rem", flexGrow: 1, borderRadius: "5px", border: "1px solid #ccc" }}
         />
         <button className="btn" onClick={handleBulkDelete} style={{ background: "red" }}>
-          🗑️ Bulk Delete
+          Delete
         </button>
       </div>
 
@@ -167,7 +168,10 @@ export default function FileTable() {
                   onClick={(e) => e.stopPropagation()}
                 />
               </td>
-              <td>📁 {folder.originalName}</td>
+              <td style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <AiFillFolder style={{ marginRight: 4, color: "#f5a623" }} />
+                {folder.originalName}
+              </td>
               <td>{folder.createdAt?.toDate().toLocaleString()}</td>
               <td>—</td>
             </tr>
@@ -189,11 +193,11 @@ export default function FileTable() {
                   onClick={(e) => e.stopPropagation()}
                 />
               </td>
-              <td>
-                <a href={file.url} target="_blank" rel="noreferrer">
+              <td style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <AiFillFile style={{ marginRight: 4, color: "#7d7d7d" }} />
+                <a href={file.url} target="_blank" rel="noreferrer" style={{ textDecoration: "none", color: "inherit" }}>
                   {file.versionedName}
                 </a>
-                {" "}
                 <button
                   className="file-share-button"
                   onClick={(e) => {
@@ -202,8 +206,9 @@ export default function FileTable() {
                       .then(() => alert("🔗 File link copied!"))
                       .catch(() => alert("Failed to copy link."));
                   }}
+                  style={{ marginLeft: "8px" }}
                 >
-                  🔗 Share
+                  <AiOutlineLink size={16} />
                 </button>
               </td>
               <td>{file.createdAt?.toDate().toLocaleString()}</td>

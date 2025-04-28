@@ -1,15 +1,31 @@
 .topbar {
-  display: flex;
-  gap: 1rem;
-  padding: 1rem;
   background: #ffffff;
-  border-bottom: 1px solid #ddd;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #e5e5e5;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
+
 .btn {
-  padding: 0.5rem 1rem;
-  background: #0070f3;
+  background-color: #0061ff;
   color: white;
+  padding: 8px 16px;
   border: none;
+  border-radius: 8px;
+  font-weight: 500;
   cursor: pointer;
-  border-radius: 5px;
+  transition: background 0.3s;
+  font-family: "Inter", "Helvetica Neue", sans-serif;
+}
+
+.btn:hover {
+  background-color: #0047cc;
+}
+
+input[type="file"] {
+  font-family: "Inter", "Helvetica Neue", sans-serif;
 }

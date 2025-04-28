@@ -1,17 +1,21 @@
-.modal-overlay {
+/* PreviewModal.css */
+.preview-modal {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
+  top: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  max-width: 800px;
+  background: #ffffff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  z-index: 1500;
 }
 
-.modal-content {
-  background: white;
-  padding: 1rem;
+.preview-modal img,
+.preview-modal iframe {
+  width: 100%;
+  height: auto;
   border-radius: 8px;
-  max-width: 800px;
-  width: 90%;
 }
