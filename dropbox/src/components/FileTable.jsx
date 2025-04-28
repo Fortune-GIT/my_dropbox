@@ -127,7 +127,7 @@ export default function FileTable() {
   return (
     <div className="file-table" onClick={() => setShowContext(false)}>
       {/* SEARCH + BULK DELETE */}
-      <div style={{ marginBottom: "1rem", display: "flex", gap: "10px", alignItems: "center" }}>
+      <div style={{ marginBottom: "1rem", display: "flex", gap: "60px", alignItems: "center" }}>
         <div style={{ position: "relative", flexGrow: 1 }}>
           <AiOutlineSearch
             style={{
@@ -145,7 +145,7 @@ export default function FileTable() {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             style={{
-              padding: "0.5rem 0.5rem 0.5rem 2.5rem", // padding left for icon
+              padding: "0.5rem 0.5rem 0.5rem 2.5rem", 
               width: "100%",
               borderRadius: "5px",
               border: "1px solid #ccc"

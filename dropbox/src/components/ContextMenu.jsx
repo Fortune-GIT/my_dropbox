@@ -2,13 +2,16 @@
 import React from "react";
 import { db } from "../firebase";
 import { doc, deleteDoc, updateDoc } from "firebase/firestore";
+import { useFolder } from "../contexts/FolderContext";
 
 export default function ContextMenu({ file, position }) {
-  
+  const { currentView } = useFolder(); // Get current view (home, deleted, etc.)
+
   const handleRename = async () => {
     const newLabel = prompt("Enter new name:", file.originalName || file.versionedName);
     if (newLabel) {
-      await updateDoc(doc(db, "files", file.id), {
+      const fileRef = doc(db, "files", file.id);
+      await updateDoc(fileRef, {
         originalName: newLabel,
       });
       window.location.reload();
@@ -27,6 +30,15 @@ export default function ContextMenu({ file, position }) {
       deleted: true,
     });
     alert("🗑️ Moved to trash!");
+    window.location.reload();
+  };
+
+  const handleRestoreFromTrash = async () => {
+    await updateDoc(doc(db, "files", file.id), {
+      deleted: false,
+    });
+    alert("♻️ File restored to previous location!");
+    window.location.reload();
   };
 
   const handleMarkShared = async () => {
@@ -43,7 +55,14 @@ export default function ContextMenu({ file, position }) {
     >
       <button onClick={handleRename}>✏️ Rename</button>
       <button onClick={handleMarkShared}>🔗 Mark as Shared</button>
-      <button onClick={handleMoveToTrash}>🗑️ Move to Trash</button>
+
+      {/* Special behavior: Restore if inside Deleted view */}
+      {currentView === "deleted" ? (
+        <button onClick={handleRestoreFromTrash}>♻️ Restore</button>
+      ) : (
+        <button onClick={handleMoveToTrash}>🗑️ Move to Trash</button>
+      )}
+
       <button onClick={handleDelete} style={{ color: "red" }}>
         ❌ Permanently Delete
       </button>
