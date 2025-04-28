@@ -12,6 +12,7 @@ import "./styles/FileTable.css";
 import "./styles/StorageUsage.css";
 import "./styles/CreateFolderModal.css";
 import "./styles/ContextMenu.css";
+import "./styles/PreviewModal.css"; /* (optional if you use a separate Preview Modal CSS) */
 
 export default function App() {
   return (

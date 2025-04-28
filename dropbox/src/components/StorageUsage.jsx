@@ -5,6 +5,7 @@ import { collection, onSnapshot } from "firebase/firestore";
 
 export default function StorageUsage() {
   const [totalSize, setTotalSize] = useState(0);
+  const maxSize = 2 * 1024 * 1024 * 1024; // 2 GB in bytes
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "files"), snapshot => {
@@ -19,9 +20,15 @@ export default function StorageUsage() {
     return () => unsubscribe();
   }, []);
 
+  const usedMB = (totalSize / (1024 * 1024)).toFixed(2);
+  const percentage = ((totalSize / maxSize) * 100).toFixed(2);
+
   return (
     <div className="storage-usage">
-      📦 Storage Used: {(totalSize / (1024 * 1024)).toFixed(2)} MB of 2 GB
+      <p>📦 Storage Used: {usedMB} MB of 2 GB ({percentage}%)</p>
+      <div className="storage-bar">
+        <div className="storage-bar-fill" style={{ width: `${percentage}%` }}></div>
+      </div>
     </div>
   );
 }

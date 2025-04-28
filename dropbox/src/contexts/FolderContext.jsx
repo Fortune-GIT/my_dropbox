@@ -1,5 +1,5 @@
 // src/contexts/FolderContext.jsx
-import React, { createContext, useState, useContext } from "react";
+import React, { createContext, useContext, useState } from "react";
 
 const FolderContext = createContext();
 
@@ -8,21 +8,27 @@ export function useFolder() {
 }
 
 export function FolderProvider({ children }) {
-  const [currentFolderId, setCurrentFolderId] = useState(null);
-  const [currentFolderName, setCurrentFolderName] = useState("Home");
+  const [path, setPath] = useState([{ id: null, name: "Home" }]);
 
   const openFolder = (folderId, folderName) => {
-    setCurrentFolderId(folderId);
-    setCurrentFolderName(folderName);
+    setPath((prev) => [...prev, { id: folderId, name: folderName }]);
+  };
+
+  const goBack = () => {
+    if (path.length > 1) {
+      setPath((prev) => prev.slice(0, prev.length - 1));
+    }
   };
 
   const goHome = () => {
-    setCurrentFolderId(null);
-    setCurrentFolderName("Home");
+    setPath([{ id: null, name: "Home" }]);
   };
 
+  const currentFolderId = path[path.length - 1]?.id;
+  const currentFolderName = path[path.length - 1]?.name;
+
   return (
-    <FolderContext.Provider value={{ currentFolderId, currentFolderName, openFolder, goHome }}>
+    <FolderContext.Provider value={{ path, currentFolderId, currentFolderName, openFolder, goBack, goHome }}>
       {children}
     </FolderContext.Provider>
   );

@@ -10,3 +10,68 @@
   padding: 0.5rem;
   text-align: left;
 }
+
+.file-table input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.file-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.file-table th, .file-table td {
+  border: 1px solid #ddd;
+  padding: 0.75rem;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.file-table tr {
+  transition: background 0.3s ease;
+}
+
+.file-table tr:hover {
+  background: #f5f7fa;
+}
+
+.file-table a {
+  text-decoration: none;
+  color: #0070f3;
+}
+
+.file-table a:hover {
+  text-decoration: underline;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+  opacity: 0.85;
+}
+
+.file-table .btn {
+  background-color: #0070f3;
+  color: white;
+}
+
+.file-table .btn[style*="background: red"] {
+  background-color: #e53935;
+}
+
+.file-table input[type="text"] {
+  font-size: 1rem;
+}
+
+.dragging {
+  opacity: 0.4;
+}
