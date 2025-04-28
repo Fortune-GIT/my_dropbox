@@ -31,9 +31,9 @@ export default function FileUploader() {
         size: file.size,
         createdAt: serverTimestamp(),
         parentFolder: currentFolderId || null,
-        deleted: false,            // ✅ Important for queries
-        shared: false,             // ✅ For Shared Files feature
-        fileType: ext.toLowerCase() // ✅ For Pictures filtering (jpg, png, etc.)
+        deleted: false,           
+        shared: false,            
+        fileType: ext.toLowerCase() 
       });
     }
 

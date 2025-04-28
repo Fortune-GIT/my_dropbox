@@ -1,3 +1,4 @@
+// src/components/CreateFolderModal.jsx
 import React, { useState } from "react";
 import { db } from "../firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
@@ -16,28 +17,28 @@ export default function CreateFolderModal({ onClose }) {
     await addDoc(collection(db, "files"), {
       originalName: folderName,
       isFolder: true,
+      parentFolder: currentFolderId || null,
       createdAt: serverTimestamp(),
-      parentFolder: currentFolderId || null
+      deleted: false,   // ✅ VERY IMPORTANT
     });
 
+    alert("✅ Folder created successfully!");
+    setFolderName("");
     onClose();
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <h2>Create New Folder</h2>
-        <input
-          type="text"
-          value={folderName}
-          onChange={(e) => setFolderName(e.target.value)}
-          placeholder="Folder Name"
-          style={{ width: "100%", padding: "0.5rem", marginBottom: "1rem", border: "1px solid #ccc", borderRadius: "5px" }}
-        />
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <button className="btn" onClick={handleCreate}>Create</button>
-          <button className="btn" style={{ background: "#ccc" }} onClick={onClose}>Cancel</button>
-        </div>
+    <div className="modal">
+      <h2>Create New Folder</h2>
+      <input
+        type="text"
+        placeholder="Folder Name"
+        value={folderName}
+        onChange={(e) => setFolderName(e.target.value)}
+      />
+      <div style={{ marginTop: "1rem", display: "flex", gap: "10px" }}>
+        <button className="btn" onClick={handleCreate}>Create</button>
+        <button className="btn" onClick={onClose} style={{ backgroundColor: "#ccc" }}>Cancel</button>
       </div>
     </div>
   );
