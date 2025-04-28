@@ -1,7 +1,7 @@
 // src/pages/SignUp.jsx
 import React, { useState } from "react";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 export default function SignUp() {
   const [email, setEmail] = useState("");
@@ -14,7 +14,7 @@ export default function SignUp() {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       alert("✅ Account created successfully!");
-      navigate("/"); // Redirect to home page after signup
+      navigate("/");
     } catch (error) {
       console.error(error);
       alert(error.message);
@@ -23,24 +23,27 @@ export default function SignUp() {
 
   return (
     <div className="auth-container">
-      <h2>Sign Up</h2>
-      <form onSubmit={handleSignUp}>
+      <h2>CREATE AN ACCOUNT</h2>
+      <form onSubmit={handleSignUp} className="auth-form">
         <input 
           type="email" 
-          placeholder="Email" 
+          placeholder="Email address" 
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          required 
+          required
         />
         <input 
           type="password" 
           placeholder="Password" 
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          required 
+          required
         />
-        <button type="submit" className="btn blue">Create Account</button>
+        <button type="submit" className="auth-button">Sign Up</button>
       </form>
+      <p className="auth-footer">
+        Already have an account? <Link to="/login" className="auth-link">Login</Link>
+      </p>
     </div>
   );
 }
