@@ -23,7 +23,7 @@ export default function Login() {
 
   return (
     <div className="auth-container">
-      <h2>WELCOME BACK</h2>
+      <h2>SIGN IN</h2>
       <form onSubmit={handleLogin} className="auth-form">
         <input 
           type="email" 

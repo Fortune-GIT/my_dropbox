@@ -1,3 +1,4 @@
+// src/components/FileTable.jsx
 import React, { useEffect, useState } from "react";
 import { db } from "../firebase";
 import { collection, onSnapshot, query, where, orderBy, updateDoc, doc, deleteDoc } from "firebase/firestore";
@@ -121,20 +122,13 @@ export default function FileTable() {
     }
   };
 
-  const handleDownload = (e, file) => {
-    e.stopPropagation();
-    try {
-      const link = document.createElement("a");
-      link.href = file.url;
-      link.setAttribute("download", file.versionedName || "downloaded-file");
-      link.target = "_blank"; // important for Firebase Storage
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (error) {
-      console.error("Error downloading file:", error);
-      alert("Failed to download file.");
-    }
+  const handleDownload = (file) => {
+    const link = document.createElement("a");
+    link.href = file.url;
+    link.setAttribute("download", file.originalName || "downloaded-file");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const folders = files.filter(file => file.isFolder && file.originalName.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -243,39 +237,28 @@ export default function FileTable() {
                     {file.versionedName}
                   </a>
 
-                  {/* Share Button */}
+                  {/* Copy Link */}
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       navigator.clipboard.writeText(file.url)
-                        .then(() => alert("🔗 File link copied!"))
+                        .then(() => alert("🔗 Link copied!"))
                         .catch(() => alert("Failed to copy link."));
                     }}
                     title="Copy Link"
-                    style={{
-                      marginLeft: "8px",
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                      fontSize: "18px",
-                      color: "#555"
-                    }}
+                    style={{ marginLeft: "8px", background: "none", border: "none", cursor: "pointer", fontSize: "18px", color: "#555" }}
                   >
                     <AiOutlineLink />
                   </button>
 
-                  {/* Download Button */}
+                  {/* Download */}
                   <button
-                    onClick={(e) => handleDownload(e, file)}
-                    title="Download File"
-                    style={{
-                      marginLeft: "8px",
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                      fontSize: "18px",
-                      color: "#555"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDownload(file);
                     }}
+                    title="Download File"
+                    style={{ marginLeft: "8px", background: "none", border: "none", cursor: "pointer", fontSize: "18px", color: "#555" }}
                   >
                     <AiOutlineDownload />
                   </button>

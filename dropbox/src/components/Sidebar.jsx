@@ -67,7 +67,7 @@ export default function Sidebar() {
             fontSize: "16px" 
           }}
         >
-          <AiFillDelete size={20} /> Deleted Files
+          <AiFillDelete size={20} /> Trash
         </li>
       </ul>
     </div>
