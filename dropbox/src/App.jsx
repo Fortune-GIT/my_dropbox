@@ -10,6 +10,7 @@ import StorageUsage from "./components/StorageUsage";
 
 import SignUp from "./components/SignUp";
 import Login from "./components/Login";
+import PrivateRoute from "./components/PrivateRoute"; 
 
 import "./styles/Sidebar.css";
 import "./styles/Topbar.css";
@@ -24,28 +25,28 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        {/* Signup Page */}
+        {/* Public Routes */}
         <Route path="/signup" element={<SignUp />} />
-
-        {/* Login Page */}
         <Route path="/login" element={<Login />} />
 
-        {/* Main App (protected area) */}
+        {/* Protected App Routes */}
         <Route
           path="/*"
           element={
-            <FolderProvider>
-              <div className="app">
-                <Sidebar />
-                <div className="main">
-                  <div className="main-inner">
-                    <Topbar />
-                    <FileTable />
+            <PrivateRoute> 
+              <FolderProvider>
+                <div className="app">
+                  <Sidebar />
+                  <div className="main">
+                    <div className="main-inner">
+                      <Topbar />
+                      <FileTable />
+                    </div>
+                    <StorageUsage />
                   </div>
-                  <StorageUsage />
                 </div>
-              </div>
-            </FolderProvider>
+              </FolderProvider>
+            </PrivateRoute>
           }
         />
       </Routes>
