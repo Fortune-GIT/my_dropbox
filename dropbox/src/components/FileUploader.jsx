@@ -30,7 +30,10 @@ export default function FileUploader() {
         url: downloadURL,
         size: file.size,
         createdAt: serverTimestamp(),
-        parentFolder: currentFolderId || null
+        parentFolder: currentFolderId || null,
+        deleted: false,            // ✅ Important for queries
+        shared: false,             // ✅ For Shared Files feature
+        fileType: ext.toLowerCase() // ✅ For Pictures filtering (jpg, png, etc.)
       });
     }
 

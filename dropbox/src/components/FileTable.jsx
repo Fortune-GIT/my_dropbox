@@ -7,7 +7,7 @@ import ContextMenu from "./ContextMenu";
 import PreviewModal from "./PreviewModal";
 
 export default function FileTable() {
-  const { currentFolderId, openFolder } = useFolder();
+  const { currentFolderId, currentView, openFolder } = useFolder(); // 👈 include currentView
   const [files, setFiles] = useState([]);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -17,17 +17,51 @@ export default function FileTable() {
   const [previewFile, setPreviewFile] = useState(null);
 
   useEffect(() => {
-    const q = query(
-      collection(db, "files"),
-      where("parentFolder", "==", currentFolderId || null),
-      orderBy("createdAt", "desc")
-    );
+    let q;
+
+    if (currentView === "pictures") {
+      q = query(
+        collection(db, "files"),
+        where("fileType", "in", ["jpg", "jpeg", "png"]),
+        where("deleted", "==", false),
+        orderBy("createdAt", "desc")
+      );
+    } else if (currentView === "shared") {
+      q = query(
+        collection(db, "files"),
+        where("shared", "==", true),
+        where("deleted", "==", false),
+        orderBy("createdAt", "desc")
+      );
+    } else if (currentView === "deleted") {
+      q = query(
+        collection(db, "files"),
+        where("deleted", "==", true),
+        orderBy("createdAt", "desc")
+      );
+    } else if (currentView === "folder") {
+      q = query(
+        collection(db, "files"),
+        where("parentFolder", "==", currentFolderId || null),
+        where("deleted", "==", false),
+        orderBy("createdAt", "desc")
+      );
+    } else {
+      // Default "home"
+      q = query(
+        collection(db, "files"),
+        where("parentFolder", "==", null),
+        where("deleted", "==", false),
+        orderBy("createdAt", "desc")
+      );
+    }
+
     const unsubscribe = onSnapshot(q, snapshot => {
       setFiles(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     });
 
     return () => unsubscribe();
-  }, [currentFolderId]);
+  }, [currentFolderId, currentView]); // 👈 track both
 
   const handleRightClick = (e, file) => {
     e.preventDefault();
