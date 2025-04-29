@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { db } from "../firebase";
 import { collection, onSnapshot, query, where, orderBy, updateDoc, doc, deleteDoc } from "firebase/firestore";
+import { getAuth } from "firebase/auth"; 
 import { useFolder } from "../contexts/FolderContext";
 import ContextMenu from "./ContextMenu";
 import PreviewModal from "./PreviewModal";
@@ -18,11 +19,17 @@ export default function FileTable() {
   const [previewFile, setPreviewFile] = useState(null);
 
   useEffect(() => {
+    const auth = getAuth();
+    const user = auth.currentUser;
+
+    if (!user) return; // safety: don't fetch if no user
+
     let q;
 
     if (currentView === "pictures") {
       q = query(
         collection(db, "files"),
+        where("userId", "==", user.uid),
         where("fileType", "in", ["jpg", "jpeg", "png"]),
         where("deleted", "==", false),
         orderBy("createdAt", "desc")
@@ -30,6 +37,7 @@ export default function FileTable() {
     } else if (currentView === "shared") {
       q = query(
         collection(db, "files"),
+        where("userId", "==", user.uid),
         where("shared", "==", true),
         where("deleted", "==", false),
         orderBy("createdAt", "desc")
@@ -37,19 +45,23 @@ export default function FileTable() {
     } else if (currentView === "deleted") {
       q = query(
         collection(db, "files"),
+        where("userId", "==", user.uid),
         where("deleted", "==", true),
         orderBy("createdAt", "desc")
       );
     } else if (currentView === "folder") {
       q = query(
         collection(db, "files"),
+        where("userId", "==", user.uid),
         where("parentFolder", "==", currentFolderId || null),
         where("deleted", "==", false),
         orderBy("createdAt", "desc")
       );
     } else {
+      // Default "Home" view
       q = query(
         collection(db, "files"),
+        where("userId", "==", user.uid),
         where("parentFolder", "==", null),
         where("deleted", "==", false),
         orderBy("createdAt", "desc")

@@ -1,7 +1,7 @@
 // src/components/Topbar.jsx
 import React, { useState } from "react";
 import { storage, db } from "../firebase";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage"; // use uploadBytesResumable!
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import { useFolder } from "../contexts/FolderContext";
 import CreateFolderModal from "./CreateFolderModal";
@@ -15,11 +15,12 @@ export default function Topbar() {
   const [uploadingText, setUploadingText] = useState("");
   const { currentFolderId, currentView, openParentFolder } = useFolder();
   const auth = getAuth();
+  const user = auth.currentUser;
 
   const handleUpload = async () => {
     if (!files.length) return alert("Please choose a file!");
 
-    let totalBytes = files.reduce((acc, file) => acc + file.size, 0); // total size of all files
+    let totalBytes = files.reduce((acc, file) => acc + file.size, 0);
     let uploadedBytes = 0;
 
     for (const file of files) {
@@ -32,16 +33,16 @@ export default function Topbar() {
 
       await new Promise((resolve, reject) => {
         uploadTask.on(
-          'state_changed',
+          "state_changed",
           (snapshot) => {
             const currentBytes = snapshot.bytesTransferred;
-            const fileTotalBytes = snapshot.totalBytes;
-
             uploadedBytes += currentBytes;
             const progress = Math.min(100, (uploadedBytes / totalBytes) * 100);
 
             setUploadProgress(progress.toFixed(1));
-            setUploadingText(`Uploaded ${(uploadedBytes / (1024 * 1024)).toFixed(2)} MB / ${(totalBytes / (1024 * 1024)).toFixed(2)} MB`);
+            setUploadingText(
+              `Uploaded ${(uploadedBytes / (1024 * 1024)).toFixed(2)} MB / ${(totalBytes / (1024 * 1024)).toFixed(2)} MB`
+            );
           },
           (error) => reject(error),
           async () => {
@@ -55,6 +56,7 @@ export default function Topbar() {
               parentFolder: currentFolderId || null,
               fileType: ext.toLowerCase(),
               deleted: false,
+              userId: user.uid, 
             });
             resolve();
           }
@@ -62,7 +64,7 @@ export default function Topbar() {
       });
     }
 
-    alert("✅ Upload complete!");
+    alert("Upload complete!");
     setFiles([]);
     setUploadProgress(0);
     setUploadingText("");
@@ -71,7 +73,7 @@ export default function Topbar() {
   const handleSignOut = async () => {
     try {
       await signOut(auth);
-      alert("👋 Signed out successfully!");
+      alert("Signed out successfully!");
       window.location.href = "/login";
     } catch (error) {
       console.error("Error signing out:", error);
@@ -82,7 +84,7 @@ export default function Topbar() {
   return (
     <div className="topbar" style={{ display: "flex", flexDirection: "column", padding: "1rem", backgroundColor: "#ffffff", borderBottom: "1px solid #e0e0e0" }}>
       
-      {/* Top toolbar */}
+      {/* Top Toolbar */}
       <div style={{ display: "flex", alignItems: "center", gap: "10px", width: "100%" }}>
         
         {/* Back Button */}
