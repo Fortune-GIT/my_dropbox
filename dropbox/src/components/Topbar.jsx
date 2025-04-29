@@ -1,48 +1,52 @@
 // src/components/Topbar.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { storage, db } from "../firebase";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { ref, uploadBytesResumable, getDownloadURL, listAll, getMetadata } from "firebase/storage";
+import { collection, addDoc, serverTimestamp, query, where, getDocs } from "firebase/firestore";
 import { useFolder } from "../contexts/FolderContext";
 import CreateFolderModal from "./CreateFolderModal";
+import { getAuth } from "firebase/auth";
 import { AiOutlineUpload, AiFillFolderAdd, AiOutlineLogout, AiOutlineArrowLeft } from "react-icons/ai";
-import { getAuth, signOut } from "firebase/auth";
 
 export default function Topbar() {
   const [files, setFiles] = useState([]);
-  const [showCreateFolder, setShowCreateFolder] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadingText, setUploadingText] = useState("");
+  const [showCreateFolder, setShowCreateFolder] = useState(false);
   const { currentFolderId, currentView, openParentFolder } = useFolder();
   const auth = getAuth();
   const user = auth.currentUser;
 
   const handleUpload = async () => {
-    if (!files.length) return alert("Please choose a file!");
+    if (!files.length || !user) {
+      alert("Please choose a file or re-login!");
+      return;
+    }
 
-    let totalBytes = files.reduce((acc, file) => acc + file.size, 0);
-    let uploadedBytes = 0;
+    const userFiles = await getDocs(query(collection(db, "files"), where("userId", "==", user.uid)));
+    const totalBytesUsed = userFiles.docs.reduce((acc, doc) => acc + (doc.data().size || 0), 0);
+
+    const totalNewFilesSize = files.reduce((acc, file) => acc + file.size, 0);
+    const total = totalBytesUsed + totalNewFilesSize;
+
+    if (total > 2 * 1024 * 1024 * 1024) { // 2GB
+      alert("❌ Storage limit exceeded! Each user has only 2GB.");
+      return;
+    }
 
     for (const file of files) {
       const timestamp = new Date().toISOString().replace(/[:.]/g, "_");
       const [name, ext] = file.name.split(/\.(?=[^\.]+$)/);
       const versionedName = `${name}-${timestamp}.${ext}`;
-      const storageRef = ref(storage, `uploads/${versionedName}`);
-
+      const storageRef = ref(storage, `uploads/${user.uid}/${versionedName}`);
       const uploadTask = uploadBytesResumable(storageRef, file);
 
       await new Promise((resolve, reject) => {
         uploadTask.on(
           "state_changed",
           (snapshot) => {
-            const currentBytes = snapshot.bytesTransferred;
-            uploadedBytes += currentBytes;
-            const progress = Math.min(100, (uploadedBytes / totalBytes) * 100);
-
-            setUploadProgress(progress.toFixed(1));
-            setUploadingText(
-              `Uploaded ${(uploadedBytes / (1024 * 1024)).toFixed(2)} MB / ${(totalBytes / (1024 * 1024)).toFixed(2)} MB`
-            );
+            setUploadProgress((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+            setUploadingText(`Uploading ${(snapshot.bytesTransferred / (1024 * 1024)).toFixed(2)} MB`);
           },
           (error) => reject(error),
           async () => {
@@ -56,7 +60,7 @@ export default function Topbar() {
               parentFolder: currentFolderId || null,
               fileType: ext.toLowerCase(),
               deleted: false,
-              userId: user.uid, 
+              userId: user.uid, // ✅ Attach userId
             });
             resolve();
           }
@@ -64,79 +68,49 @@ export default function Topbar() {
       });
     }
 
-    alert("Upload complete!");
+    alert("✅ Upload complete!");
     setFiles([]);
-    setUploadProgress(0);
     setUploadingText("");
+    setUploadProgress(0);
   };
 
   const handleSignOut = async () => {
-    try {
-      await signOut(auth);
-      alert("Signed out successfully!");
-      window.location.href = "/login";
-    } catch (error) {
-      console.error("Error signing out:", error);
-      alert("Something went wrong while signing out.");
-    }
+    await auth.signOut();
+    window.location.href = "/login";
   };
 
   return (
-    <div className="topbar" style={{ display: "flex", flexDirection: "column", padding: "1rem", backgroundColor: "#ffffff", borderBottom: "1px solid #e0e0e0" }}>
-      
-      {/* Top Toolbar */}
-      <div style={{ display: "flex", alignItems: "center", gap: "10px", width: "100%" }}>
-        
-        {/* Back Button */}
+    <div className="topbar">
+      {/* Toolbar */}
+      <div style={{ display: "flex", gap: "10px" }}>
         {currentView === "folder" && currentFolderId && (
-          <button onClick={openParentFolder} className="btn" style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-            <AiOutlineArrowLeft size={18} />
-            Back
+          <button className="btn" onClick={openParentFolder}>
+            <AiOutlineArrowLeft /> Back
           </button>
         )}
-
-        {/* Choose Files */}
-        <label className="file-upload-button" style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", padding: "0.5rem 1rem", background: "#f0f0f0", borderRadius: "6px" }}>
+        <label className="file-upload-button">
           📁 Choose Files
-          <input
-            type="file"
-            multiple
-            onChange={(e) => setFiles([...e.target.files])}
-            style={{ display: "none" }}
-          />
+          <input type="file" multiple onChange={(e) => setFiles([...e.target.files])} style={{ display: "none" }} />
         </label>
-
-        {/* Upload Button */}
-        <button onClick={handleUpload} className="btn blue" style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-          <AiOutlineUpload size={18} />
-          Upload
+        <button className="btn blue" onClick={handleUpload}>
+          <AiOutlineUpload /> Upload
         </button>
-
-        {/* Create Folder */}
-        <button onClick={() => setShowCreateFolder(true)} className="btn blue" style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-          <AiFillFolderAdd size={18} />
-          Create Folder
+        <button className="btn blue" onClick={() => setShowCreateFolder(true)}>
+          <AiFillFolderAdd /> Create Folder
         </button>
-
-        {/* Spacer */}
         <div style={{ flexGrow: 1 }} />
-
-        {/* Sign Out Button */}
-        <button onClick={handleSignOut} className="btn red" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-          <AiOutlineLogout size={18} />
-          Sign Out
+        <button className="btn red" onClick={handleSignOut}>
+          <AiOutlineLogout /> Sign Out
         </button>
-
       </div>
 
       {/* Upload Progress */}
       {uploadProgress > 0 && (
-        <div style={{ marginTop: "8px", fontSize: "14px", color: "#555" }}>
-          📤 {uploadingText} ({uploadProgress}%)
+        <div style={{ marginTop: "8px", fontSize: "14px" }}>
+          📤 {uploadingText} ({uploadProgress.toFixed(1)}%)
         </div>
       )}
 
-      {/* Create Folder Modal */}
       {showCreateFolder && <CreateFolderModal onClose={() => setShowCreateFolder(false)} />}
     </div>
   );

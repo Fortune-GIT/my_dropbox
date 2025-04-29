@@ -1,8 +1,9 @@
+// src/components/CreateFolderModal.jsx
 import React, { useState } from "react";
 import { db } from "../firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { useFolder } from "../contexts/FolderContext";
 import { getAuth } from "firebase/auth";
+import { useFolder } from "../contexts/FolderContext";
 
 export default function CreateFolderModal({ onClose }) {
   const [folderName, setFolderName] = useState("");
@@ -11,13 +12,8 @@ export default function CreateFolderModal({ onClose }) {
   const user = auth.currentUser;
 
   const handleCreate = async () => {
-    if (!folderName.trim()) {
+    if (!folderName.trim() || !user) {
       alert("Folder name cannot be empty!");
-      return;
-    }
-
-    if (!user) {
-      alert("User not authenticated.");
       return;
     }
 
@@ -27,17 +23,17 @@ export default function CreateFolderModal({ onClose }) {
       parentFolder: currentFolderId || null,
       createdAt: serverTimestamp(),
       deleted: false,
-      userId: user.uid, // ✅ Important: tag it to the logged-in user
+      userId: user.uid, // ✅ Attach userId
     });
 
-    alert("✅ Folder created successfully!");
+    alert("✅ Folder created!");
     setFolderName("");
     onClose();
   };
 
   return (
     <div className="modal">
-      <h2>Create New Folder</h2>
+      <h2>Create Folder</h2>
       <input
         type="text"
         placeholder="Folder Name"
@@ -46,9 +42,7 @@ export default function CreateFolderModal({ onClose }) {
       />
       <div style={{ marginTop: "1rem", display: "flex", gap: "10px" }}>
         <button className="btn" onClick={handleCreate}>Create</button>
-        <button className="btn" onClick={onClose} style={{ backgroundColor: "#ccc" }}>
-          Cancel
-        </button>
+        <button className="btn" onClick={onClose}>Cancel</button>
       </div>
     </div>
   );
