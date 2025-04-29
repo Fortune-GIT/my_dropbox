@@ -1,8 +1,8 @@
-// src/App.jsx
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { FolderProvider } from "./contexts/FolderContext";
+import React, { useEffect, useState } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
+import { FolderProvider } from "./contexts/FolderContext";
 import Sidebar from "./components/Sidebar";
 import Topbar from "./components/Topbar";
 import FileTable from "./components/FileTable";
@@ -10,7 +10,6 @@ import StorageUsage from "./components/StorageUsage";
 
 import SignUp from "./components/SignUp";
 import Login from "./components/Login";
-import PrivateRoute from "./components/PrivateRoute"; 
 
 import "./styles/Sidebar.css";
 import "./styles/Topbar.css";
@@ -22,18 +21,35 @@ import "./styles/PreviewModal.css";
 import "./styles/Auth.css";
 
 export default function App() {
+  const [user, setUser] = useState(null);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setCheckingAuth(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  if (checkingAuth) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <Router>
       <Routes>
-        {/* Public Routes */}
+        {/* Public Auth Routes */}
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
 
-        {/* Protected App Routes */}
+        {/* Protected Main App */}
         <Route
           path="/*"
           element={
-            <PrivateRoute> 
+            user ? (
               <FolderProvider>
                 <div className="app">
                   <Sidebar />
@@ -46,7 +62,9 @@ export default function App() {
                   </div>
                 </div>
               </FolderProvider>
-            </PrivateRoute>
+            ) : (
+              <Navigate to="/login" replace />
+            )
           }
         />
       </Routes>
