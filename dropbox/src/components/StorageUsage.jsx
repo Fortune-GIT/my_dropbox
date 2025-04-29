@@ -1,19 +1,25 @@
-// src/components/StorageUsage.jsx
 import React, { useEffect, useState } from "react";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
-import { getAuth } from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 export default function StorageUsage() {
   const [used, setUsed] = useState(0);
-  const auth = getAuth();
-  const user = auth.currentUser;
+  const [userId, setUserId] = useState(null);
 
   useEffect(() => {
-    if (!user) return;
+    const unsubscribeAuth = onAuthStateChanged(getAuth(), (user) => {
+      if (user) setUserId(user.uid);
+    });
+    return () => unsubscribeAuth();
+  }, []);
+
+  useEffect(() => {
+    if (!userId) return;
+
     const q = query(
       collection(db, "files"),
-      where("userId", "==", user.uid),
+      where("userId", "==", userId),
       where("deleted", "==", false)
     );
 
@@ -23,7 +29,7 @@ export default function StorageUsage() {
     });
 
     return () => unsubscribe();
-  }, [user?.uid]);
+  }, [userId]);
 
   const usedGB = (used / (1024 * 1024 * 1024)).toFixed(2);
   const maxGB = 2;

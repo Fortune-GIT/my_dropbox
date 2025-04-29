@@ -11,7 +11,6 @@ import {
   deleteDoc
 } from "firebase/firestore";
 import { useFolder } from "../contexts/FolderContext";
-import { getAuth } from "firebase/auth";
 import ContextMenu from "./ContextMenu";
 import PreviewModal from "./PreviewModal";
 import {
@@ -21,6 +20,7 @@ import {
   AiOutlineDownload,
   AiOutlineSearch
 } from "react-icons/ai";
+import { getAuth } from "firebase/auth";
 
 export default function FileTable() {
   const { currentFolderId, currentView, openFolder } = useFolder();
@@ -31,66 +31,61 @@ export default function FileTable() {
   const [showContext, setShowContext] = useState(false);
   const [contextPosition, setContextPosition] = useState({ x: 0, y: 0 });
   const [previewFile, setPreviewFile] = useState(null);
-
   const auth = getAuth();
   const user = auth.currentUser;
 
   useEffect(() => {
-    if (!user) return; // ✅ Important: only run if user exists
+    if (!user) return;
 
     let q;
-    const baseConditions = [
-      where("userId", "==", user.uid),
-      orderBy("createdAt", "desc")
-    ];
 
-    switch (currentView) {
-      case "pictures":
-        q = query(
-          collection(db, "files"),
-          where("fileType", "in", ["jpg", "jpeg", "png"]),
-          where("deleted", "==", false),
-          ...baseConditions
-        );
-        break;
-      case "shared":
-        q = query(
-          collection(db, "files"),
-          where("shared", "==", true),
-          where("deleted", "==", false),
-          ...baseConditions
-        );
-        break;
-      case "deleted":
-        q = query(
-          collection(db, "files"),
-          where("deleted", "==", true),
-          ...baseConditions
-        );
-        break;
-      case "folder":
-        q = query(
-          collection(db, "files"),
-          where("parentFolder", "==", currentFolderId || null),
-          where("deleted", "==", false),
-          ...baseConditions
-        );
-        break;
-      default:
-        q = query(
-          collection(db, "files"),
-          where("parentFolder", "==", null),
-          where("deleted", "==", false),
-          ...baseConditions
-        );
+    if (currentView === "pictures") {
+      q = query(
+        collection(db, "files"),
+        where("userId", "==", user.uid),
+        where("fileType", "in", ["jpg", "jpeg", "png"]),
+        where("deleted", "==", false),
+        orderBy("createdAt", "desc")
+      );
+    } else if (currentView === "shared") {
+      q = query(
+        collection(db, "files"),
+        where("userId", "==", user.uid),
+        where("shared", "==", true),
+        where("deleted", "==", false),
+        orderBy("createdAt", "desc")
+      );
+    } else if (currentView === "deleted") {
+      q = query(
+        collection(db, "files"),
+        where("userId", "==", user.uid),
+        where("deleted", "==", true),
+        orderBy("createdAt", "desc")
+      );
+    } else if (currentView === "folder") {
+      q = query(
+        collection(db, "files"),
+        where("userId", "==", user.uid),
+        where("parentFolder", "==", currentFolderId || null),
+        where("deleted", "==", false),
+        orderBy("createdAt", "desc")
+      );
+    } else {
+      q = query(
+        collection(db, "files"),
+        where("userId", "==", user.uid),
+        where("parentFolder", "==", null),
+        where("deleted", "==", false),
+        orderBy("createdAt", "desc")
+      );
     }
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    const unsubscribe = onSnapshot(q, snapshot => {
       setFiles(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     });
 
     return () => unsubscribe();
-  }, [currentFolderId, currentView, user?.uid]); // ✅ Always fixed dependencies
+  }, [currentFolderId, currentView, user]);
 
   const handleRightClick = (e, file) => {
     e.preventDefault();
@@ -115,27 +110,35 @@ export default function FileTable() {
   };
 
   const handleDragStart = (e, fileId) => {
-    const payload = selectedFiles.length > 1 ? selectedFiles : [fileId];
-    e.dataTransfer.setData("text/plain", JSON.stringify(payload));
+    if (selectedFiles.length > 1) {
+      e.dataTransfer.setData("text/plain", JSON.stringify(selectedFiles));
+    } else {
+      e.dataTransfer.setData("text/plain", JSON.stringify([fileId]));
+    }
   };
 
   const toggleFileSelection = (fileId) => {
-    setSelectedFiles((prev) =>
-      prev.includes(fileId)
-        ? prev.filter((id) => id !== fileId)
-        : [...prev, fileId]
+    setSelectedFiles(prev =>
+      prev.includes(fileId) ? prev.filter(id => id !== fileId) : [...prev, fileId]
     );
   };
 
   const handleBulkDelete = async () => {
-    if (selectedFiles.length === 0) return alert("Select at least one item.");
-    const confirmDelete = window.confirm("Are you sure?");
-    if (!confirmDelete) return;
+    if (!selectedFiles.length) return alert("Select at least one file/folder to delete!");
 
-    for (const fileId of selectedFiles) {
-      await deleteDoc(doc(db, "files", fileId));
+    if (window.confirm("Move selected items to trash?")) {
+      for (const fileId of selectedFiles) {
+        await updateDoc(doc(db, "files", fileId), { deleted: true });
+      }
+      setSelectedFiles([]);
+      alert("🗑️ Moved to trash.");
     }
-    setSelectedFiles([]);
+  };
+
+  const handleFileClick = (file) => {
+    if ([".pdf", ".png", ".jpg"].some(ext => file.versionedName?.endsWith(ext))) {
+      setPreviewFile(file.url);
+    }
   };
 
   const handleDownload = (file) => {
@@ -147,16 +150,12 @@ export default function FileTable() {
     document.body.removeChild(link);
   };
 
-  const folders = files.filter(
-    (f) => f.isFolder && f.originalName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-  const regularFiles = files.filter(
-    (f) => !f.isFolder && f.versionedName.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const folders = files.filter(f => f.isFolder && f.originalName.toLowerCase().includes(searchTerm.toLowerCase()));
+  const regularFiles = files.filter(f => !f.isFolder && f.versionedName?.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
     <div className="file-table" onClick={() => setShowContext(false)}>
-      {/* Search + Bulk Delete */}
+      {/* SEARCH & DELETE */}
       <div style={{ marginBottom: "1rem", display: "flex", gap: "60px", alignItems: "center" }}>
         <div style={{ position: "relative", flexGrow: 1 }}>
           <AiOutlineSearch
@@ -182,13 +181,12 @@ export default function FileTable() {
             }}
           />
         </div>
-
         <button className="btn" onClick={handleBulkDelete} style={{ background: "red" }}>
           Delete
         </button>
       </div>
 
-      {/* Table for Files & Folders */}
+      {/* FILE DISPLAY */}
       <table>
         <thead>
           <tr>
@@ -199,7 +197,7 @@ export default function FileTable() {
           </tr>
         </thead>
         <tbody>
-          {folders.map((folder) => (
+          {folders.map(folder => (
             <tr
               key={folder.id}
               onClick={() => handleOpenFolder(folder)}
@@ -224,12 +222,13 @@ export default function FileTable() {
             </tr>
           ))}
 
-          {regularFiles.map((file) => (
+          {regularFiles.map(file => (
             <tr
               key={file.id}
               draggable
               onDragStart={(e) => handleDragStart(e, file.id)}
               onContextMenu={(e) => handleRightClick(e, file)}
+              onClick={() => handleFileClick(file)}
             >
               <td>
                 <input
@@ -240,30 +239,40 @@ export default function FileTable() {
                 />
               </td>
               <td style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <AiFillFile />
-                <a
-                  href={file.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ textDecoration: "none", color: "inherit" }}
-                >
+                <AiFillFile style={{ color: "#7d7d7d" }} />
+                <a href={file.url} target="_blank" rel="noreferrer" style={{ color: "inherit", textDecoration: "none" }}>
                   {file.versionedName}
                 </a>
+
+                {/* LINK */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    navigator.clipboard.writeText(file.url);
+                    if (!file.url) return alert("❌ No URL available.");
+                    navigator.clipboard.writeText(file.url)
+                      .then(() => alert("🔗 Link copied!"))
+                      .catch(() => alert("❌ Failed to copy link."));
                   }}
-                  style={{ background: "none", border: "none", cursor: "pointer", marginLeft: "8px" }}
+                  title="Copy Link"
+                  style={{
+                    marginLeft: "8px", background: "none", border: "none",
+                    cursor: "pointer", fontSize: "18px", color: "#555"
+                  }}
                 >
                   <AiOutlineLink />
                 </button>
+
+                {/* DOWNLOAD */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     handleDownload(file);
                   }}
-                  style={{ background: "none", border: "none", cursor: "pointer", marginLeft: "8px" }}
+                  title="Download"
+                  style={{
+                    marginLeft: "8px", background: "none", border: "none",
+                    cursor: "pointer", fontSize: "18px", color: "#555"
+                  }}
                 >
                   <AiOutlineDownload />
                 </button>
