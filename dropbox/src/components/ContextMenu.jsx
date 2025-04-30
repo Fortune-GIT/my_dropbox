@@ -11,6 +11,8 @@ export default function ContextMenu({ file, position }) {
 
   if (!file || !user) return null;
 
+  const fileRef = doc(db, "files", file.id);
+
   const handleRename = async () => {
     if (!newName.trim()) {
       alert("New name cannot be empty!");
@@ -18,10 +20,17 @@ export default function ContextMenu({ file, position }) {
     }
 
     try {
-      const fileRef = doc(db, "files", file.id);
-      await updateDoc(fileRef, {
-        originalName: newName
-      });
+      if (file.isFolder) {
+        await updateDoc(fileRef, { originalName: newName });
+      } else {
+        const ext = file.versionedName.split(".").pop();
+        const updatedVersionedName = `${newName}-${Date.now()}.${ext}`;
+        await updateDoc(fileRef, {
+          originalName: newName,
+          versionedName: updatedVersionedName,
+        });
+      }
+
       alert("✅ Renamed successfully!");
       setRenaming(false);
     } catch (error) {
@@ -30,14 +39,23 @@ export default function ContextMenu({ file, position }) {
     }
   };
 
+  const handleToggleShared = async () => {
+    try {
+      await updateDoc(fileRef, {
+        shared: !file.shared,
+      });
+      alert(file.shared ? "🔒 Unshared" : "✅ Marked as shared!");
+    } catch (error) {
+      console.error("Toggle share error:", error);
+      alert("❌ Failed to toggle shared status.");
+    }
+  };
+
   const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to move to trash?")) return;
 
     try {
-      const fileRef = doc(db, "files", file.id);
-      await updateDoc(fileRef, {
-        deleted: true
-      });
+      await updateDoc(fileRef, { deleted: true });
       alert("🗑️ Moved to trash!");
     } catch (error) {
       console.error("Delete error:", error);
@@ -47,10 +65,7 @@ export default function ContextMenu({ file, position }) {
 
   const handleRecover = async () => {
     try {
-      const fileRef = doc(db, "files", file.id);
-      await updateDoc(fileRef, {
-        deleted: false
-      });
+      await updateDoc(fileRef, { deleted: false });
       alert("✅ Restored from trash!");
     } catch (error) {
       console.error("Recover error:", error);
@@ -62,7 +77,6 @@ export default function ContextMenu({ file, position }) {
     if (!window.confirm("⚠️ Permanently delete this item? This cannot be undone.")) return;
 
     try {
-      const fileRef = doc(db, "files", file.id);
       await deleteDoc(fileRef);
       alert("🗑️ File permanently deleted!");
     } catch (error) {
@@ -87,23 +101,21 @@ export default function ContextMenu({ file, position }) {
     >
       {!renaming ? (
         <>
-          <button className="btn" onClick={() => setRenaming(true)}>
-            ✏️ Rename
-          </button>
+          <button className="btn" onClick={() => setRenaming(true)}>✏️ Rename</button>
+
+          {!file.deleted && !file.isFolder && (
+            <button className="btn" onClick={handleToggleShared}>
+              {file.shared ? "🔒 Unshare" : "🤝 Mark as Shared"}
+            </button>
+          )}
 
           {file.deleted ? (
             <>
-              <button className="btn" onClick={handleRecover}>
-                ♻️ Recover
-              </button>
-              <button className="btn" onClick={handlePermanentDelete}>
-                ❌ Permanently Delete
-              </button>
+              <button className="btn" onClick={handleRecover}>♻️ Recover</button>
+              <button className="btn" onClick={handlePermanentDelete}>❌ Permanently Delete</button>
             </>
           ) : (
-            <button className="btn" onClick={handleDelete}>
-              🗑️ Move to Trash
-            </button>
+            <button className="btn" onClick={handleDelete}>🗑️ Move to Trash</button>
           )}
         </>
       ) : (
@@ -114,12 +126,8 @@ export default function ContextMenu({ file, position }) {
             onChange={(e) => setNewName(e.target.value)}
             placeholder="New Name"
           />
-          <button className="btn" onClick={handleRename}>
-            Save
-          </button>
-          <button className="btn" onClick={() => setRenaming(false)} style={{ backgroundColor: "#ccc" }}>
-            Cancel
-          </button>
+          <button className="btn" onClick={handleRename}>Save</button>
+          <button className="btn" onClick={() => setRenaming(false)} style={{ backgroundColor: "#ccc" }}>Cancel</button>
         </div>
       )}
     </div>

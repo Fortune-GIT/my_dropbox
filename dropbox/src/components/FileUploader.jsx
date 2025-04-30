@@ -1,4 +1,3 @@
-// src/components/FileUploader.jsx
 import React, { useState } from "react";
 import { storage, db } from "../firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";

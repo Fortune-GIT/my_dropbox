@@ -1,4 +1,3 @@
-// src/components/Topbar.jsx
 import React, { useState, useEffect } from "react";
 import { storage, db } from "../firebase";
 import { ref, uploadBytesResumable, getDownloadURL, listAll, getMetadata } from "firebase/storage";

@@ -1,4 +1,3 @@
-// src/components/FixOldFiles.jsx
 import { useEffect } from "react";
 import { db } from "../firebase";
 import { collection, getDocs, updateDoc, doc } from "firebase/firestore";

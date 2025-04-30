@@ -1,29 +1,36 @@
-/* StorageUsage.css */
 .storage-usage {
-  padding: 1rem 2rem;
-  font-family: "Inter", "Helvetica Neue", sans-serif;
-  background: #ffffff;
-  border-top: 1px solid #e5e5e5;
-  margin-top: auto;
+  padding: 1rem;
+  border-top: 1px solid #eaeaea;
+  background-color: #f9f9f9;
+  font-size: 14px;
+  color: #333;
 }
 
 .storage-usage p {
-  font-size: 0.9rem;
-  color: #555;
   margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #444;
 }
 
-.storage-usage .progress-bar {
+.storage-usage progress {
   width: 100%;
-  height: 8px;
-  background: #e0e0e0;
-  border-radius: 10px;
+  height: 16px;
+  border-radius: 8px;
   overflow: hidden;
-  margin-top: 0.5rem;
+  appearance: none;
 }
 
-.storage-usage .progress-bar-fill {
-  background: #0061ff;
-  height: 100%;
-  width: 50%; 
+.storage-usage progress::-webkit-progress-bar {
+  background-color: #e0e0e0;
+  border-radius: 8px;
+}
+
+.storage-usage progress::-webkit-progress-value {
+  background-color: #4285f4;
+  border-radius: 8px;
+}
+
+.storage-usage progress::-moz-progress-bar {
+  background-color: #4285f4;
+  border-radius: 8px;
 }

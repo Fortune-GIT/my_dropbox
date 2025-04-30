@@ -1,4 +1,3 @@
-// src/pages/SignUp.jsx
 import React, { useState } from "react";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 import { useNavigate, Link } from "react-router-dom";

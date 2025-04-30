@@ -1,43 +1,39 @@
 import React, { useEffect, useState } from "react";
 import { collection, query, where, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 
 export default function StorageUsage() {
-  const [used, setUsed] = useState(0);
-  const [userId, setUserId] = useState(null);
+  const [usedBytes, setUsedBytes] = useState(0);
+  const user = getAuth().currentUser;
 
   useEffect(() => {
-    const unsubscribeAuth = onAuthStateChanged(getAuth(), (user) => {
-      if (user) setUserId(user.uid);
-    });
-    return () => unsubscribeAuth();
-  }, []);
-
-  useEffect(() => {
-    if (!userId) return;
+    if (!user) return;
 
     const q = query(
       collection(db, "files"),
-      where("userId", "==", userId),
+      where("userId", "==", user.uid),
       where("deleted", "==", false)
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const totalBytes = snapshot.docs.reduce((acc, doc) => acc + (doc.data().size || 0), 0);
-      setUsed(totalBytes);
+      const total = snapshot.docs.reduce((acc, doc) => acc + (doc.data().size || 0), 0);
+      setUsedBytes(total);
     });
 
     return () => unsubscribe();
-  }, [userId]);
+  }, [user]);
 
-  const usedGB = (used / (1024 * 1024 * 1024)).toFixed(2);
-  const maxGB = 2;
+  const usedMB = (usedBytes / (1024 * 1024)).toFixed(2);
+  const maxMB = 2048; 
+  const usagePercent = ((usedBytes / (1024 * 1024 * 2048)) * 100).toFixed(2);
 
   return (
-    <div className="storage-usage">
-      <p>Storage Usage: {usedGB} GB / {maxGB} GB</p>
-      <progress value={used} max={2 * 1024 * 1024 * 1024} style={{ width: "100%" }} />
+    <div className="storage-usage" style={{ padding: "1rem" }}>
+      <p>
+        <strong>Storage Usage:</strong> {usedMB} MB / 2048 MB ({usagePercent}%)
+      </p>
+      <progress value={usedBytes} max={2 * 1024 * 1024 * 1024} style={{ width: "100%" }} />
     </div>
   );
 }

@@ -1,13 +1,19 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Allow read/write only on user's own files
+    
     match /files/{fileId} {
-      allow read, update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
-    }
+      // Allow read if authenticated and user owns the file
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
 
-    // (Optional) You can later add a "users" collection rule here if you need.
+      // Allow create only if the userId being set matches the logged in user
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+
+      // Allow update and delete only if user is owner
+      allow update, delete: if request.auth != null &&
+        resource.data.userId == request.auth.uid &&
+        // prevent userId from being changed
+        request.resource.data.userId == resource.data.userId;
+    }
   }
 }
